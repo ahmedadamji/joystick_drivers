@@ -370,6 +370,7 @@ public:
 
     // Parameter conversions
     double autorepeat_interval = 1 / autorepeat_rate_;
+    double autorepeat_count = {};
     double scale = -1. / (1. - deadzone_) / 32767.;
     double unscaled_deadzone = 32767. * deadzone_;
 
@@ -612,6 +613,7 @@ public:
                 "time=%u, value=%d, type=%Xh, number=%d", event.time, event.value, event.type, event.number);
               break;
           }
+	  autorepeat_count = 0;
         }
         else if (tv_set)  // Assume that the timer has expired.
         {
@@ -651,6 +653,12 @@ public:
           tv.tv_sec = trunc(autorepeat_interval);
           tv.tv_usec = (autorepeat_interval - tv.tv_sec) * 1e6;
           tv_set = true;
+	  autorepeat_count++;
+	  if (autorepeat_count > 10)
+	  {
+	     tv_set = false;
+	  }
+
         }
 
         if (!tv_set)
